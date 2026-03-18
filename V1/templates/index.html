@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Design & HTML Quiz</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Hind Siliguri", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px;
+   /* animation: gradientShift 15s ease infinite;  */
+  }
+  @keyframes gradientShift { 0%,100%{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)} 50%{background:linear-gradient(135deg,#764ba2 0%,#667eea 100%)} }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .container { max-width: 760px; margin: 0 auto; background: rgba(255,255,255,0.97); border-radius: 24px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); animation: slideUp .7s ease-out; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  .header { text-align: center; margin-bottom: 32px; }
+  h1 { font-size: 30px; font-weight: 700; background: linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom: 8px; }
+  .subtitle { color:#6b7280; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .stats-row { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+  .stat-card { flex:1; min-width:120px; padding:14px 16px; border-radius:14px; display:flex; align-items:center; gap:10px; font-weight:600; font-size:14px; }
+  .stat-card.timer-card { background:linear-gradient(135deg,#ff6b6b,#feca57); color:white; box-shadow:0 4px 15px rgba(255,107,107,.3); }
+  .stat-card.progress-card { background:linear-gradient(135deg,#48bb78,#38a169); color:white; box-shadow:0 4px 15px rgba(72,187,120,.3); }
+  .stat-card.score-card { background:linear-gradient(135deg,#667eea,#764ba2); color:white; box-shadow:0 4px 15px rgba(102,126,234,.3); }
+  .stat-icon { font-size:20px; }
+  .stat-label { font-size:11px; opacity:.85; font-weight:400; }
+  .stat-value { font-size:18px; font-weight:700; line-height:1.1; }
+  .timer-warning { animation:blink 1s infinite; }
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:.5} }
+  .progress-track { height:6px; background:#e2e8f0; border-radius:3px; margin-bottom:28px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#667eea,#764ba2); border-radius:3px; transition:width .4s ease; }
+  .question-wrap { animation:questionSlide .4s ease-out; }
+  @keyframes questionSlide { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  .question-box { padding:24px; background:#f8fafc; border-radius:16px; border-left:4px solid #667eea; margin-bottom:20px; }
+  .question-title { font-size:17px; font-weight:600; color:#1a202c; display:flex; align-items:flex-start; gap:12px; line-height:1.6; }
+  .question-number { display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; border-radius:50%; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px; }
+  .options { display:grid; gap:10px; }
+  .option { position:relative; display:flex; align-items:center; padding:14px 18px; background:white; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; transition:all .25s ease; user-select:none; }
+  .option:hover { border-color:#667eea; background:#f7f9ff; transform:translateX(4px); }
+  .option input[type="radio"] { position:absolute; opacity:0; cursor:pointer; }
+  .option.selected { border-color:#667eea; background:linear-gradient(135deg,#f0f4ff,#ede9ff); box-shadow:0 2px 10px rgba(102,126,234,.15); }
+  .option.correct { border-color:#48bb78; background:linear-gradient(135deg,#f0fff4,#e6ffed); animation:correctPop .4s ease; }
+  .option.wrong { border-color:#fc8181; background:linear-gradient(135deg,#fff5f5,#fed7d7); }
+  @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.03)} 100%{transform:scale(1)} }
+  .option-label { width:28px; height:28px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#4a5568; flex-shrink:0; margin-right:14px; transition:all .25s ease; }
+  .option.selected .option-label { background:#667eea; color:white; }
+  .option.correct  .option-label { background:#48bb78; color:white; }
+  .option.wrong    .option-label { background:#fc8181; color:white; }
+  .option-text { color:#374151; font-size:15px; line-height:1.5; }
+  .option-icon { margin-left:auto; font-size:16px; display:none; }
+  .option.correct .option-icon.correct-icon { display:block; color:#48bb78; }
+  .option.wrong   .option-icon.wrong-icon   { display:block; color:#fc8181; }
+  /* feedback-bar hidden — replaced by toast */
+  .feedback-bar { display:none !important; }
+  .nav-buttons { display:flex; gap:12px; margin-top:8px; }
+  .btn { flex:1; padding:14px 20px; font-size:15px; font-weight:600; border:none; border-radius:12px; cursor:pointer; transition:all .25s ease; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; transform:none !important; }
+  .btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:white; box-shadow:0 4px 15px rgba(102,126,234,.4); }
+  .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 25px rgba(102,126,234,.55); }
+  .btn-secondary { background:#f1f5f9; color:#4a5568; }
+  .btn-secondary:hover:not(:disabled) { background:#e2e8f0; transform:translateY(-2px); }
+  .btn-danger { background:linear-gradient(135deg,#ff6b6b,#ee5a24); color:white; box-shadow:0 4px 15px rgba(255,107,107,.35); }
+  .btn-danger:hover:not(:disabled) { transform:translateY(-2px); }
+  /* ── DOTS — scrollable horizontal strip ── */
+  .q-dots-wrap { position:relative; margin-bottom:20px; }
+  .q-dots-wrap::before, .q-dots-wrap::after {
+    content:''; position:absolute; top:0; bottom:0; width:24px; z-index:2; pointer-events:none;
+  }
+  .q-dots-wrap::before { left:0;  background:linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0)); }
+  .q-dots-wrap::after  { right:0; background:linear-gradient(to left,  rgba(255,255,255,1), rgba(255,255,255,0)); }
+  .q-dots {
+    display:flex; gap:5px; overflow-x:auto; padding:6px 4px;
+    scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .q-dots::-webkit-scrollbar { display:none; }
+  .q-dot {
+    width:26px; height:26px; border-radius:50%; background:#e2e8f0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; color:#718096;
+    cursor:pointer; transition:all .2s ease; border:2px solid transparent;
+    flex-shrink:0;
+  }
+  .q-dot:hover { transform:scale(1.15); }
+  .q-dot.current { border-color:#667eea; background:#e8edff; color:#667eea; transform:scale(1.2); }
+  .q-dot.answered-correct { background:#48bb78; color:white; }
+  .q-dot.answered-wrong   { background:#fc8181; color:white; }
+
+  /* ── SWIPE CARD WRAPPER ── */
+  .swipe-wrap {
+    overflow:hidden; position:relative; touch-action:pan-y;
+    border-radius:16px;
+  }
+  .swipe-hint {
+    display:none; text-align:center; font-size:12px; color:#a0aec0;
+    margin-top:10px; gap:6px; align-items:center; justify-content:center;
+  }
+  .swipe-hint i { font-size:14px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: white;
+    border-radius: 16px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: "Hind Siliguri", sans-serif;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    min-width: 220px;
+    max-width: calc(100vw - 40px);
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+    opacity: 0;
+    pointer-events: none;
+    border: 2px solid transparent;
+  }
+  #toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  #toast.correct { border-color: #9ae6b4; }
+  #toast.wrong   { border-color: #feb2b2; }
+  .toast-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  #toast.correct .toast-icon { background: #f0fff4; color: #38a169; }
+  #toast.wrong   .toast-icon { background: #fff5f5; color: #e53e3e; }
+  .toast-body { display:flex; flex-direction:column; gap:2px; }
+  .toast-title { font-size: 14px; font-weight: 700; }
+  #toast.correct .toast-title { color: #276749; }
+  #toast.wrong   .toast-title { color: #c53030; }
+  .toast-sub { font-size: 12px; color: #6b7280; font-weight: 400; }
+  .result-header { text-align:center; margin-bottom:36px; }
+  .result-emoji { font-size:64px; margin-bottom:16px; animation:popIn .6s ease-out; }
+  @keyframes popIn { 0%{transform:scale(0)} 70%{transform:scale(1.15)} 100%{transform:scale(1)} }
+  .result-title { font-size:28px; font-weight:700; color:#1a202c; margin-bottom:8px; }
+  .result-subtitle { color:#6b7280; font-size:15px; }
+  .score-circle { width:160px; height:160px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; margin:0 auto 32px; box-shadow:0 8px 30px rgba(102,126,234,.4); animation:popIn .7s ease-out .1s both; }
+  .score-number { font-size:48px; font-weight:700; line-height:1; }
+  .score-denom  { font-size:18px; opacity:.85; }
+  .result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:32px; }
+  .result-stat { text-align:center; padding:18px 12px; border-radius:16px; background:#f8fafc; border:1.5px solid #e2e8f0; }
+  .result-stat-icon { font-size:24px; margin-bottom:8px; }
+  .result-stat-val  { font-size:22px; font-weight:700; color:#1a202c; margin-bottom:4px; }
+  .result-stat-lbl  { font-size:12px; color:#6b7280; }
+  .result-stat.green { background:#f0fff4; border-color:#9ae6b4; }
+  .result-stat.green .result-stat-val { color:#276749; }
+  .result-stat.red   { background:#fff5f5; border-color:#feb2b2; }
+  .result-stat.red   .result-stat-val { color:#c53030; }
+  .result-stat.blue  { background:#ebf4ff; border-color:#90cdf4; }
+  .result-stat.blue  .result-stat-val { color:#2b6cb0; }
+  .grade-badge { display:flex; align-items:center; gap:8px; padding:8px 20px; border-radius:50px; font-weight:700; font-size:15px; margin:0 auto 28px; justify-content:center; width:fit-content; }
+  .grade-A { background:#f0fff4; color:#276749; border:2px solid #9ae6b4; }
+  .grade-B { background:#ebf4ff; color:#2b6cb0; border:2px solid #90cdf4; }
+  .grade-C { background:#fffff0; color:#744210; border:2px solid #f6e05e; }
+  .grade-D { background:#fff5f5; color:#c53030; border:2px solid #feb2b2; }
+  .review-toggle { cursor:pointer; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; font-weight:600; color:#374151; margin-bottom:16px; transition:all .2s; }
+  .review-toggle:hover { background:#edf2f7; }
+  .review-list { display:none; }
+  .review-list.open { display:block; }
+  .review-item { margin-bottom:16px; padding:16px 18px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:14px; }
+  .review-item.correct { border-color:#9ae6b4; background:#f0fff4; }
+  .review-item.wrong   { border-color:#feb2b2; background:#fff5f5; }
+  .review-q   { font-weight:600; color:#1a202c; margin-bottom:10px; display:flex; gap:8px; align-items:flex-start; }
+  .review-ans { display:flex; flex-direction:column; gap:4px; font-size:13px; }
+  .review-correct { color:#276749; }
+  .review-user    { color:#c53030; }
+  .intro-features { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin:28px 0; }
+  .feature-card { padding:18px; background:#f8fafc; border-radius:14px; border:1.5px solid #e2e8f0; display:flex; align-items:flex-start; gap:12px; }
+  .feature-icon { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; color:white; font-size:18px; flex-shrink:0; }
+  .feature-text h4 { font-size:14px; font-weight:600; color:#1a202c; margin-bottom:3px; }
+  .feature-text p  { font-size:12px; color:#6b7280; line-height:1.4; }
+  #overlay { position:fixed; inset:0; background:rgba(0,0,0,.8); backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; z-index:999; }
+  .overlay-content { background:white; padding:40px; border-radius:20px; text-align:center; max-width:380px; margin:20px; box-shadow:0 20px 40px rgba(0,0,0,.3); }
+  .overlay-icon  { font-size:48px; color:#ff6b6b; margin-bottom:16px; }
+  .overlay-title { font-size:24px; font-weight:700; color:#1a202c; margin-bottom:10px; }
+  .overlay-msg   { color:#6b7280; font-size:15px; margin-bottom:20px; }
+  /* ── NAME INPUT ── */
+  .name-input-wrap { margin: 24px 0 8px; }
+  .name-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
+  .name-input {
+    width: 100%; padding: 14px 18px; font-size: 16px; font-family: "Hind Siliguri", sans-serif;
+    border: 2px solid #e2e8f0; border-radius: 12px; outline: none;
+    transition: border-color .25s, box-shadow .25s; color: #1a202c; background: #f8fafc;
+  }
+  .name-input:focus { border-color: #667eea; background: white; box-shadow: 0 0 0 3px rgba(102,126,234,.15); }
+  .name-input.error { border-color: #fc8181; box-shadow: 0 0 0 3px rgba(252,129,129,.15); }
+  .name-error { font-size: 12px; color: #c53030; margin-top: 6px; display: none; }
+  .name-error.show { display: block; }
+  @media(max-width:600px){
+    body{padding:10px;}
+    .container{padding:16px 14px;border-radius:18px;} h1{font-size:20px;}
+    .stat-card{min-width:80px;padding:10px 10px;} .stat-value{font-size:14px;} .stat-label{font-size:10px;}
+    .result-grid{grid-template-columns:repeat(3,1fr);gap:10px;}
+    .intro-features{grid-template-columns:1fr;} .question-title{font-size:15px;}
+    .option-text{font-size:14px;}
+    .swipe-hint{display:flex;}
+    .nav-buttons{gap:8px;}
+    .btn{padding:12px 14px;font-size:14px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="introScreen" class="screen active">
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-code"></i> Web Design &amp; HTML</h1>
+      <p class="subtitle"><i class="fas fa-graduation-cap"></i> MCQ Quiz — ৪০টি প্রশ্ন</p>
+    </div>
+    <div class="intro-features">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-question-circle"></i></div>
+        <div class="feature-text"><h4>৪০টি প্রশ্ন</h4><p>Web Design ও HTML বিষয়ক MCQ প্রশ্ন</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-clock"></i></div>
+        <div class="feature-text"><h4>৪০ মিনিট সময়</h4><p>টাইমার শেষ হলে স্বয়ংক্রিয়ভাবে সাবমিট হবে</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-check-double"></i></div>
+        <div class="feature-text"><h4>তাৎক্ষণিক ফিডব্যাক</h4><p>প্রতিটি উত্তরের পর সঠিক/ভুল জানা যাবে</p></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+        <div class="feature-text"><h4>বিস্তারিত রেজাল্ট</h4><p>শেষে স্কোর ও রিভিউ দেখতে পাবে</p></div>
+      </div>
+    </div>
+
+    <!-- Name input -->
+    <div class="name-input-wrap">
+      <label class="name-label" for="studentName">
+        <i class="fas fa-user-graduate"></i> তোমার নাম লিখো
+      </label>
+      <input
+        type="text" id="studentName" class="name-input"
+        placeholder="যেমন: রাফি আহমেদ"
+        maxlength="60"
+        onkeydown="if(event.key==='Enter') startQuiz()"
+      >
+      <div class="name-error" id="nameError">⚠️ কুইজ শুরু করতে নাম লিখতে হবে।</div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()" style="width:100%;font-size:16px;padding:16px;margin-top:12px;">
+      <i class="fas fa-play"></i> কুইজ শুরু করো
+    </button>
+    <a href="/leaderboard" style="display:block;text-align:center;margin-top:14px;font-size:13px;color:#667eea;font-weight:600;text-decoration:none;">
+      <i class="fas fa-trophy"></i> লিডারবোর্ড দেখো
+    </a>
+  </div>
+</div>
+
+<div id="quizScreen" class="screen">
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-code"></i> Web Design &amp; HTML Quiz</h1>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card timer-card" id="timerCard">
+        <span class="stat-icon"><i class="fas fa-stopwatch"></i></span>
+        <div><div class="stat-label">সময় বাকি</div><div class="stat-value" id="timerVal">40:00</div></div>
+      </div>
+      <div class="stat-card progress-card">
+        <span class="stat-icon"><i class="fas fa-list-ol"></i></span>
+        <div><div class="stat-label">প্রশ্ন</div><div class="stat-value" id="qCounter">১ / ৪০</div></div>
+      </div>
+      <div class="stat-card score-card">
+        <span class="stat-icon"><i class="fas fa-star"></i></span>
+        <div><div class="stat-label">স্কোর</div><div class="stat-value" id="liveScore">০</div></div>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="q-dots-wrap">
+      <div class="q-dots" id="qDots"></div>
+    </div>
+
+    <div class="swipe-wrap" id="swipeWrap">
+      <div id="questionWrap"></div>
+    </div>
+
+    <div class="swipe-hint">
+      <i class="fas fa-hand-point-left"></i> সোয়াইপ করে প্রশ্ন পরিবর্তন করো <i class="fas fa-hand-point-right"></i>
+    </div>
+
+    <div class="feedback-bar" id="feedbackBar">
+      <i class="fas fa-info-circle"></i><span id="feedbackText"></span>
+    </div>
+
+    <div class="nav-buttons" id="navButtons">
+      <button class="btn btn-secondary" id="prevBtn" onclick="navigate(-1)" disabled>
+        <i class="fas fa-arrow-left"></i> পূর্ববর্তী
+      </button>
+      <button class="btn btn-primary" id="nextBtn" onclick="navigate(1)">
+        পরবর্তী <i class="fas fa-arrow-right"></i>
+      </button>
+      <button class="btn btn-danger" id="submitBtn" onclick="submitQuiz()" style="display:none">
+        <i class="fas fa-paper-plane"></i> সাবমিট
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="resultScreen" class="screen">
+  <div class="container">
+    <div class="result-header">
+      <div class="result-emoji" id="resultEmoji">🎉</div>
+      <div class="result-title" id="resultTitle">কুইজ শেষ!</div>
+      <div class="result-subtitle" id="resultSubtitle">তোমার ফলাফল নিচে দেওয়া হলো</div>
+      <div style="margin-top:8px;font-size:15px;font-weight:600;color:#667eea;" id="resultName"></div>
+    </div>
+    <div class="score-circle">
+      <div class="score-number" id="scoreNum">0</div>
+      <div class="score-denom">/ 40</div>
+    </div>
+    <div class="grade-badge" id="gradeBadge"></div>
+    <div class="result-grid">
+      <div class="result-stat green"><div class="result-stat-icon">✅</div><div class="result-stat-val" id="correctCount">0</div><div class="result-stat-lbl">সঠিক</div></div>
+      <div class="result-stat red"  ><div class="result-stat-icon">❌</div><div class="result-stat-val" id="wrongCount">0</div><div class="result-stat-lbl">ভুল</div></div>
+      <div class="result-stat blue" ><div class="result-stat-icon">⏭️</div><div class="result-stat-val" id="skipCount">0</div><div class="result-stat-lbl">বাদ দেওয়া</div></div>
+    </div>
+
+    <!-- Save status -->
+    <div id="saveStatus" style="text-align:center;font-size:13px;margin-bottom:16px;min-height:20px;"></div>
+
+    <div class="nav-buttons" style="margin-bottom:12px;">
+      <button class="btn btn-primary" onclick="restartQuiz()"><i class="fas fa-redo"></i> আবার চেষ্টা করো</button>
+      <a href="/leaderboard" class="btn btn-success" style="text-decoration:none;">
+        <i class="fas fa-trophy"></i> লিডারবোর্ড
+      </a>
+    </div>
+
+    <div class="review-toggle" onclick="toggleReview()">
+      <span><i class="fas fa-list-check"></i> &nbsp; সব প্রশ্নের উত্তর রিভিউ করো</span>
+      <i class="fas fa-chevron-down" id="reviewChevron"></i>
+    </div>
+    <div class="review-list" id="reviewList"></div>
+  </div>
+</div>
+
+<div id="overlay">
+  <div class="overlay-content">
+    <div class="overlay-icon"><i class="fas fa-hourglass-end"></i></div>
+    <div class="overlay-title">সময় শেষ!</div>
+    <div class="overlay-msg">সময় শেষ হয়ে গেছে। তোমার উত্তরগুলো স্বয়ংক্রিয়ভাবে সাবমিট হচ্ছে।</div>
+    <button class="btn btn-primary" onclick="finishQuiz()"><i class="fas fa-chart-bar"></i> ফলাফল দেখো</button>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast">
+  <div class="toast-icon"><i id="toastIcon" class="fas fa-check"></i></div>
+  <div class="toast-body">
+    <div class="toast-title" id="toastTitle"></div>
+    <div class="toast-sub" id="toastSub"></div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='quiz.js') }}"></script>
+</body>
+</html>

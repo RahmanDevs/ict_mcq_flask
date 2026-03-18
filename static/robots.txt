@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /leaderboard
+
+Disallow: /api/
+Disallow: /api/save-score
+Disallow: /api/leaderboard

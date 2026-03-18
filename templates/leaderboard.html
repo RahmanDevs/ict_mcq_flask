@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>লিডারবোর্ড — ডাটাবেজ ম্যানেজমেন্ট সিস্টেম কুইজ</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Hind Siliguri",sans-serif; background:linear-gradient(135deg,#667eea,#764ba2); min-height:100vh; padding:20px; }
+  .container { max-width:760px; margin:0 auto; background:rgba(255,255,255,.97); border-radius:24px; padding:36px; box-shadow:0 20px 60px rgba(0,0,0,.15); }
+  .header { text-align:center; margin-bottom:32px; }
+  h1 { font-size:28px; font-weight:700; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:6px; }
+  .subtitle { color:#6b7280; font-size:14px; }
+  .back-btn { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:10px 20px; border-radius:10px; text-decoration:none; font-size:14px; font-weight:600; margin-bottom:24px; transition:transform .2s; }
+  .back-btn:hover { transform:translateY(-2px); }
+  .table-wrap { overflow-x:auto; border-radius:16px; border:1.5px solid #e2e8f0; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  thead tr { background:linear-gradient(135deg,#667eea,#764ba2); color:white; }
+  thead th { padding:14px 16px; text-align:left; font-weight:600; white-space:nowrap; }
+  tbody tr { border-bottom:1px solid #f1f5f9; transition:background .15s; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:#f8fafc; }
+  tbody td { padding:12px 16px; vertical-align:middle; }
+  .rank { font-weight:700; font-size:16px; text-align:center; }
+  .rank-1 { color:#f6ad55; }
+  .rank-2 { color:#a0aec0; }
+  .rank-3 { color:#c05621; }
+  .name-cell { font-weight:600; color:#1a202c; }
+  .score-cell { font-weight:700; font-size:15px; color:#667eea; }
+  .grade-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+  .grade-A { background:#f0fff4; color:#276749; border:1px solid #9ae6b4; }
+  .grade-B { background:#ebf4ff; color:#2b6cb0; border:1px solid #90cdf4; }
+  .grade-C { background:#fffff0; color:#744210; border:1px solid #f6e05e; }
+  .grade-D { background:#fff5f5; color:#c53030; border:1px solid #feb2b2; }
+  .empty { text-align:center; padding:48px; color:#a0aec0; font-size:15px; }
+  .empty i { font-size:40px; margin-bottom:12px; display:block; }
+  @media(max-width:600px){
+    .container{padding:20px 14px;} h1{font-size:22px;}
+    thead th, tbody td { padding:10px 10px; font-size:13px; }
+    .time-col, .date-col { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-trophy"></i> লিডারবোর্ড</h1>
+    <p class="subtitle">ডাটাবেজ ম্যানেজমেন্ট সিস্টেম কুইজ — সর্বোচ্চ স্কোর</p>
+  </div>
+
+  <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> কুইজে ফিরে যাও</a>
+
+  {% if scores %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>নাম</th>
+          <th>স্কোর</th>
+          <th>সঠিক</th>
+          <th>ভুল</th>
+          <th>গ্রেড</th>
+          <th class="time-col">সময়</th>
+          <th class="date-col">তারিখ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in scores %}
+        <tr>
+          <td class="rank {% if loop.index==1 %}rank-1{% elif loop.index==2 %}rank-2{% elif loop.index==3 %}rank-3{% endif %}">
+            {% if loop.index == 1 %}🥇
+            {% elif loop.index == 2 %}🥈
+            {% elif loop.index == 3 %}🥉
+            {% else %}{{ loop.index }}{% endif %}
+          </td>
+          <td class="name-cell">{{ s.name }}</td>
+          <td class="score-cell">{{ s.score }} / {{ s.total }}</td>
+          <td style="color:#38a169;font-weight:600;">{{ s.correct }}</td>
+          <td style="color:#e53e3e;font-weight:600;">{{ s.wrong }}</td>
+          <td>
+            <span class="grade-pill grade-{{ 'A' if s.grade in ['A+','A'] else 'B' if s.grade in ['B+','B'] else 'C' if s.grade=='C' else 'D' }}">
+              {{ s.grade }}
+            </span>
+          </td>
+          <td class="time-col" style="color:#6b7280;">{{ s.time_taken or '—' }}</td>
+          <td class="date-col" style="color:#6b7280;font-size:12px;">{{ s.created_at[:10] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <i class="fas fa-inbox"></i>
+    এখনো কোনো স্কোর সেভ হয়নি। প্রথম কুইজ দাও!
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>
