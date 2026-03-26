@@ -496,7 +496,7 @@ const questions =[
 ];
 const LABELS = ["ক", "খ", "গ", "ঘ"];
 const TOTAL = questions.length;
-const TOTAL_TIME = 40 * 60;
+const TOTAL_TIME = 20 * 60;
 
 let current = 0;
 let userAnswers = new Array(TOTAL).fill(null);
