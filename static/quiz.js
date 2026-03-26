@@ -947,7 +947,7 @@ function restartQuiz() {
   const tc = document.getElementById("timerCard");
   tc.style.background = "";
   tc.classList.remove("timer-warning");
-  document.getElementById("timerVal").textContent = "40:00";
+  document.getElementById("timerVal").textContent = "20:00";
   document.getElementById("studentName").value = "";
   document.getElementById("saveStatus").innerHTML = "";
   showScreen("introScreen");
